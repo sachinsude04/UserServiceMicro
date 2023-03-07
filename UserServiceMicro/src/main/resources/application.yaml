@@ -1,0 +1,97 @@
+
+server:
+  port:  8090
+
+
+spring:
+#  profiles:
+#    active: dev
+  datasource:
+    name: test
+    url: jdbc:mysql://localhost:3306/microuserservice?useSSL=false
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  config:
+    import: optional:configserver:http://localhost:8095
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+#    database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
+
+   
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  application:
+    name: USER-SERVICE
+  
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+        
+  endpoint:
+    health:
+      show-details: always
+    
+  
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingHotelBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 6s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+#        SlidingWindowType: COUNT_BASED
+        slidingWindowType: COUNT_BASED
+  ratelimiter:
+    instances:
+      ratingHotelRateLimiter:
+        limit-refresh-period: 4s
+        limit-for-period: 2
+        timeout-duration: 0s
+  retry:
+    instances:
+      ratingHotelBreaker:
+        max-attempts: 3
+        wait-duration: 5s
+
+         
+#    import: optional: configserver: http://localhost:8095
+#  cloud:
+#    config:
+#      enabled: false
+        
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka
+    
+    
+    
+#
+#spring.datasource.url=
+#spring.datasource.username=root
+#spring.datasource.password=root
+#spring.datasource.driver-class-name=
+#spring.jpa.properties.hibernate.dialect=
+#spring.jpa.hibernate.ddl-auto=update
+#spring.jpa.show-sql=true
+#spring.jpa.hibernate.use-new-id-generator-mappings= false
+#    name: 
